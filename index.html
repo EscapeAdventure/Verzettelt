@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Safe Eingabe</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .safe-wrapper {
+      position: relative;
+      width: 405px;
+      height: 541px;
+      background: url('safe.png') no-repeat center center;
+      background-size: contain;
+    }
+
+    .display {
+      position: absolute;
+      top: 66px;
+      left: 65px;
+      width: 278px;
+      height: 48px;
+      background: rgba(0,0,0,0.8);
+      color: #00fff7;
+      font-family: monospace;
+      font-size: 1.2rem;
+      text-align: center;
+      line-height: 42px;
+      letter-spacing: 3px;
+      border-radius: 6px;
+    }
+
+    .key {
+      position: absolute;
+      width: 48px;
+      height: 33px;
+      background: rgba(255,255,255,0);
+      border-radius: 50%;
+      cursor: pointer;
+      outline: none;
+      user-select: none;
+    }
+
+    .key:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    #message {
+      position: absolute;
+      top: 70px;
+      width: 100%;
+      text-align: center;
+      font-size: 1rem;
+      color: #f00;
+      z-index: 10;
+    }
+
+    #video-container {
+      display: none;
+      width: 640px;
+      height: 360px;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Safe -->
+  <div class="safe-wrapper" id="safe">
+    <div id="message"></div>
+    <div class="display" id="display">____________</div>
+  </div>
+
+  <!-- Video -->
+  <div id="video-container">
+    <video id="access-video" controls autoplay>
+      <source src="TÜRÖFFNERFINALE.mp4" type="video/mp4">
+      Dein Browser unterstützt kein Video.
+    </video>
+  </div>
+
+  <script>
+    const keys = [
+      ["0", 68, 162], ["1", 123, 162], ["2", 178, 162], ["3", 233, 162], ["4", 288, 162],
+      ["5", 68, 200], ["6", 123, 200], ["7", 178, 200], ["8", 233, 200], ["9", 288, 200],
+      ["A", 68, 238], ["B", 123, 238], ["C", 178, 238], ["D", 233, 238], ["E", 288, 238],
+      ["F", 68, 270], ["G", 123, 270], ["H", 178, 270], ["I", 233, 270], ["J", 288, 270],
+      ["K", 68, 308], ["L", 123, 308], ["M", 178, 308], ["N", 233, 308], ["O", 288, 308],
+      ["P", 68, 344], ["Q", 123, 344], ["R", 178, 344], ["S", 233, 344], ["T", 288, 344],
+      ["U", 68, 380], ["V", 123, 380], ["W", 178, 380], ["X", 233, 380], ["Y", 288, 380],
+      ["Z", 68, 415],
+      ["Löschen", 123, 415, 100],
+      ["Bestätigen", 233, 415, 100]
+    ];
+
+    const wrapper = document.getElementById('safe');
+    const display = document.getElementById('display');
+    const message = document.getElementById('message');
+    const korrekterCode = "0123456789AB";
+    let eingabe = "";
+
+    // Buttons erzeugen
+    keys.forEach(([text, x, y, width]) => {
+      const key = document.createElement('div');
+      key.className = 'key';
+      key.style.left = `${x}px`;
+      key.style.top = `${y}px`;
+      if (width) {
+        key.style.width = `${width}px`;
+        key.style.borderRadius = '20px';
+      }
+      key.title = text;
+      key.setAttribute('tabindex', '-1');
+      key.onclick = (event) => {
+        handleClick(text);
+        event.currentTarget.blur();
+      };
+      wrapper.appendChild(key);
+    });
+
+    function handleClick(key) {
+      if (key === "Löschen") {
+        eingabe = eingabe.slice(0, -1);
+      } else if (key === "Bestätigen") {
+        if (eingabe === korrekterCode) {
+          eingabe = "";
+          display.textContent = "";
+          message.textContent = "✔️ Zugriff gewährt";
+          display.style.color = '#00fff7';
+          message.style.color = '#00fff7';
+
+          // Safe-Bereich ausblenden
+          document.getElementById('safe').style.display = 'none';
+          // Video einblenden
+          document.getElementById('video-container').style.display = 'block';
+
+        } else {
+          display.style.color = 'red';
+          message.style.color = 'red';
+          message.textContent = "❌ Ungültiger Code";
+          eingabe = "";
+          setTimeout(() => {
+            message.textContent = "";
+            updateDisplay();
+          }, 3000);
+        }
+      } else {
+        if (eingabe.length < 12) eingabe += key;
+      }
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      display.textContent = eingabe.padEnd(12, "_");
+      display.style.color = "#00fff7";
+    }
+  </script>
+</body>
+</html>
