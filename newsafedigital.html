@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Digital Safe mit Animation</title>
+  <title>Safe mit Karte und Video</title>
   <style>
     html, body {
       margin: 0;
@@ -21,10 +21,11 @@
       width: 90vw;
       max-width: 400px;
       aspect-ratio: 4/5;
-      background: #999;
+      background: #555;
       border-radius: 10px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       perspective: 1000px;
+      overflow: hidden;
     }
 
     .door {
@@ -33,10 +34,9 @@
       height: 100%;
       background: #ddd;
       border-radius: 10px;
-      backface-visibility: hidden;
       transform-origin: left center;
       transition: transform 1.2s ease-in-out;
-      z-index: 2;
+      z-index: 3;
       display: flex;
       flex-direction: column;
       padding: 20px;
@@ -57,7 +57,7 @@
       text-align: center;
       line-height: 50px;
       border-radius: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       user-select: none;
     }
 
@@ -71,7 +71,7 @@
     .keypad {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
 
     .key {
@@ -79,28 +79,38 @@
       border: none;
       border-radius: 25px;
       padding: 12px 0;
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: #000;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      transition: background 0.2s;
       user-select: none;
-    }
-
-    .key:active {
-      background: #ccc;
     }
 
     .key.wide {
       grid-column: span 2;
     }
 
+    #safe-open {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('SafeOpen.png') no-repeat center center;
+      background-size: cover;
+      z-index: 2;
+      display: none;
+    }
+
+    #karte {
+      position: absolute;
+      background: rgba(0, 255, 0, 0.0); /* Unsichtbar, kannst 0.2 nehmen zum testen */
+      cursor: pointer;
+      z-index: 3;
+    }
+
     #video-container {
       position: absolute;
       width: 100%;
       height: 100%;
-      border-radius: 10px;
-      overflow: hidden;
       z-index: 1;
       display: none;
     }
@@ -119,6 +129,10 @@
       <div id="message"></div>
       <div class="display" id="display">- - - - - - - - - - - -</div>
       <div class="keypad" id="keypad"></div>
+    </div>
+
+    <div id="safe-open">
+      <div id="karte"></div>
     </div>
 
     <div id="video-container">
@@ -143,18 +157,19 @@
     const display = document.getElementById('display');
     const message = document.getElementById('message');
     const door = document.getElementById('door');
+    const safeOpen = document.getElementById('safe-open');
+    const karte = document.getElementById('karte');
     const videoContainer = document.getElementById('video-container');
+    const video = document.getElementById('access-video');
 
     const keypad = document.getElementById('keypad');
     keys.forEach(key => {
       const btn = document.createElement('button');
       btn.textContent = key;
       btn.className = 'key';
-
       if (key === "Löschen" || key === "Bestätigen") {
         btn.classList.add('wide');
       }
-
       btn.onclick = () => handleClick(key);
       keypad.appendChild(btn);
     });
@@ -170,8 +185,8 @@
           display.style.color = "#0f0";
           door.classList.add('open');
           setTimeout(() => {
-            videoContainer.style.display = 'block';
-            document.getElementById('access-video').play();
+            safeOpen.style.display = 'block';
+            setKartePosition();
           }, 1200);
         } else {
           message.textContent = "❌ Falscher Code";
@@ -200,6 +215,41 @@
       display.textContent = displayText;
       display.style.color = "#0f0";
     }
+
+    function setKartePosition() {
+      const safe = document.querySelector('.safe');
+      const safeWidth = safe.offsetWidth;
+      const safeHeight = safe.offsetHeight;
+
+      // Original SafeOpen.png Größe (angenommen z.B. 400x500 px → dein Seitenverhältnis!)
+      const originalWidth = 400;
+      const originalHeight = 500;
+
+      // Verhältnis zur aktuellen Safegröße:
+      const scaleX = safeWidth / originalWidth;
+      const scaleY = safeHeight / originalHeight;
+
+      // Position & Größe umgerechnet:
+      const left = 75 * scaleX;
+      const top = 123 * scaleY;
+      const width = 137 * scaleX;
+      const height = 81 * scaleY;
+
+      karte.style.left = `${left}px`;
+      karte.style.top = `${top}px`;
+      karte.style.width = `${width}px`;
+      karte.style.height = `${height}px`;
+    }
+
+    karte.onclick = () => {
+      safeOpen.style.display = 'none';
+      videoContainer.style.display = 'block';
+      video.play();
+    };
+
+    window.addEventListener('resize', () => {
+      if (safeOpen.style.display === 'block') setKartePosition();
+    });
 
     document.addEventListener('contextmenu', e => e.preventDefault());
   </script>
