@@ -66,18 +66,18 @@
 
     #video-container {
       display: none;
-      width: 640px;
-      height: 360px;
+      width: 100%;
+      height: 100%;
     }
 
     video {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
   </style>
 </head>
-<body>
-
+<body oncontextmenu="return false;">
   <!-- Safe -->
   <div class="safe-wrapper" id="safe">
     <div id="message"></div>
@@ -86,7 +86,7 @@
 
   <!-- Video -->
   <div id="video-container">
-    <video id="access-video" controls autoplay>
+    <video id="access-video" autoplay muted playsinline>
       <source src="TÜRÖFFNERFINALE.mp4" type="video/mp4">
       Dein Browser unterstützt kein Video.
     </video>
@@ -137,14 +137,13 @@
       } else if (key === "Bestätigen") {
         if (eingabe === korrekterCode) {
           eingabe = "";
-          updateDisplay(); // leert das Display
+          display.textContent = "";
           message.textContent = "✔️ Zugriff gewährt";
           display.style.color = '#00fff7';
           message.style.color = '#00fff7';
 
-          // Warten, damit der Text sichtbar bleibt, dann Safe weg, Video an
           setTimeout(() => {
-            wrapper.style.display = 'none';
+            document.getElementById('safe').style.display = 'none';
             document.getElementById('video-container').style.display = 'block';
           }, 1000);
 
@@ -168,6 +167,12 @@
       display.textContent = eingabe.padEnd(12, "_");
       display.style.color = "#00fff7";
     }
+
+    // Video am Ende anhalten
+    const video = document.getElementById('access-video');
+    video.onended = () => {
+      video.pause();
+    };
   </script>
 </body>
 </html>
