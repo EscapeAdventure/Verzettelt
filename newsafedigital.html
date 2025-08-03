@@ -97,12 +97,12 @@
       background: url('SafeOpen.png') no-repeat center center;
       background-size: cover;
       z-index: 2;
-      display: none;
+      display: none; /* wird nur sichtbar, wenn geöffnet */
     }
 
     #karte {
       position: absolute;
-      background: rgba(0, 255, 0, 0.0); /* Unsichtbar, kannst 0.2 nehmen zum testen */
+      background: rgba(0, 255, 0, 0.0); /* unsichtbar */
       cursor: pointer;
       z-index: 3;
     }
@@ -181,6 +181,7 @@
         eingabe = eingabe.slice(0, -1);
       } else if (key === "Bestätigen") {
         if (eingabe === korrekterCode) {
+          message.textContent = "";
           display.textContent = "✔️ Zugriff gewährt";
           display.style.color = "#0f0";
           door.classList.add('open');
@@ -221,19 +222,16 @@
       const safeWidth = safe.offsetWidth;
       const safeHeight = safe.offsetHeight;
 
-      // Original SafeOpen.png Größe (angenommen z.B. 400x500 px → dein Seitenverhältnis!)
-      const originalWidth = 400;
-      const originalHeight = 500;
+      const originalWidth = 400; // Originalbild-Breite
+      const originalHeight = 500; // Originalbild-Höhe
 
-      // Verhältnis zur aktuellen Safegröße:
       const scaleX = safeWidth / originalWidth;
       const scaleY = safeHeight / originalHeight;
 
-      // Position & Größe umgerechnet:
-      const left = 75 * scaleX;
-      const top = 123 * scaleY;
-      const width = 137 * scaleX;
-      const height = 81 * scaleY;
+      let left = 75 * scaleX;
+      let top = 123 * scaleY - (5 * scaleY); // 5px höher
+      let width = 137 * scaleX;
+      let height = (81 + 5) * scaleY; // 5px höher
 
       karte.style.left = `${left}px`;
       karte.style.top = `${top}px`;
