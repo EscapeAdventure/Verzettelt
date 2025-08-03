@@ -111,6 +111,7 @@
     const message = document.getElementById('message');
     const korrekterCode = "0123456789AB";
     let eingabe = "";
+    let messageTimeout;
 
     // Buttons erzeugen
     keys.forEach(([text, x, y, width]) => {
@@ -132,6 +133,12 @@
     });
 
     function handleClick(key) {
+      if (key !== "Bestätigen") {
+        // Jede neue Eingabe entfernt Fehlermeldung sofort
+        message.textContent = "";
+        clearTimeout(messageTimeout);
+      }
+
       if (key === "Löschen") {
         eingabe = eingabe.slice(0, -1);
       } else if (key === "Bestätigen") {
@@ -145,6 +152,7 @@
           setTimeout(() => {
             document.getElementById('safe').style.display = 'none';
             document.getElementById('video-container').style.display = 'block';
+            video.play();
           }, 1000);
 
         } else {
@@ -152,7 +160,7 @@
           message.style.color = 'red';
           message.textContent = "❌ Ungültiger Code";
           eingabe = "";
-          setTimeout(() => {
+          messageTimeout = setTimeout(() => {
             message.textContent = "";
             updateDisplay();
           }, 3000);
@@ -168,8 +176,11 @@
       display.style.color = "#00fff7";
     }
 
-    // Video am Ende anhalten
+    // Video am Ende anhalten und Controls verstecken
     const video = document.getElementById('access-video');
+    video.onplay = () => {
+      video.controls = false;
+    };
     video.onended = () => {
       video.pause();
     };
