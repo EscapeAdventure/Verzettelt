@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Safe mit Karte und Video</title>
+  <title>Safe mit Karte</title>
   <style>
     html, body {
       margin: 0;
@@ -21,7 +21,7 @@
       width: 90vw;
       max-width: 400px;
       aspect-ratio: 4/5;
-      background: #555;
+      background: #000; /* Hintergrund schwarz */
       border-radius: 10px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       perspective: 1000px;
@@ -32,7 +32,7 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background: #ddd;
+      background: #999;
       border-radius: 10px;
       transform-origin: left center;
       transition: transform 1.2s ease-in-out;
@@ -90,28 +90,27 @@
       grid-column: span 2;
     }
 
-    #safe-open {
+    #safe-bg {
       position: absolute;
       width: 100%;
       height: 100%;
       background: url('SafeOpen.png') no-repeat center center;
       background-size: cover;
-      z-index: 2;
-      display: none; /* wird nur sichtbar, wenn geöffnet */
+      z-index: 1;
     }
 
     #karte {
       position: absolute;
-      background: rgba(0, 255, 0, 0.0); /* unsichtbar */
+      background: rgba(0, 255, 0, 0); /* unsichtbar */
       cursor: pointer;
-      z-index: 3;
+      z-index: 2;
     }
 
     #video-container {
       position: absolute;
       width: 100%;
       height: 100%;
-      z-index: 1;
+      z-index: 4;
       display: none;
     }
 
@@ -125,14 +124,14 @@
 <body>
 
   <div class="safe">
+    <div id="safe-bg">
+      <div id="karte"></div>
+    </div>
+
     <div class="door" id="door">
       <div id="message"></div>
       <div class="display" id="display">- - - - - - - - - - - -</div>
       <div class="keypad" id="keypad"></div>
-    </div>
-
-    <div id="safe-open">
-      <div id="karte"></div>
     </div>
 
     <div id="video-container">
@@ -157,7 +156,6 @@
     const display = document.getElementById('display');
     const message = document.getElementById('message');
     const door = document.getElementById('door');
-    const safeOpen = document.getElementById('safe-open');
     const karte = document.getElementById('karte');
     const videoContainer = document.getElementById('video-container');
     const video = document.getElementById('access-video');
@@ -185,13 +183,8 @@
           display.textContent = "✔️ Zugriff gewährt";
           display.style.color = "#0f0";
           door.classList.add('open');
-          setTimeout(() => {
-            safeOpen.style.display = 'block';
-            setKartePosition();
-          }, 1200);
         } else {
           message.textContent = "❌ Falscher Code";
-          display.style.color = "red";
           clearTimeout(errorTimeout);
           errorTimeout = setTimeout(() => {
             message.textContent = "";
@@ -207,14 +200,12 @@
     }
 
     function updateDisplay() {
-      if (message.textContent) message.textContent = "";
       let displayText = "";
       for (let i = 0; i < 12; i++) {
         displayText += i < eingabe.length ? eingabe[i] : "-";
         if (i < 11) displayText += " ";
       }
       display.textContent = displayText;
-      display.style.color = "#0f0";
     }
 
     function setKartePosition() {
@@ -222,32 +213,29 @@
       const safeWidth = safe.offsetWidth;
       const safeHeight = safe.offsetHeight;
 
-      const originalWidth = 400; // Originalbild-Breite
-      const originalHeight = 500; // Originalbild-Höhe
+      const originalWidth = 400; // Originalbild
+      const originalHeight = 500;
 
       const scaleX = safeWidth / originalWidth;
       const scaleY = safeHeight / originalHeight;
 
-      let left = 75 * scaleX;
-      let top = 123 * scaleY - (5 * scaleY); // 5px höher
-      let width = 137 * scaleX;
-      let height = (81 + 5) * scaleY; // 5px höher
-
-      karte.style.left = `${left}px`;
-      karte.style.top = `${top}px`;
-      karte.style.width = `${width}px`;
-      karte.style.height = `${height}px`;
+      karte.style.left = `${75 * scaleX}px`;
+      karte.style.top = `${(123 - 5) * scaleY}px`; // 5 px höher
+      karte.style.width = `${137 * scaleX}px`;
+      karte.style.height = `${(81 + 5) * scaleY}px`;
     }
 
+    door.addEventListener('transitionend', () => {
+      // Tür ist offen → Karte sichtbar
+      setKartePosition();
+    });
+
     karte.onclick = () => {
-      safeOpen.style.display = 'none';
       videoContainer.style.display = 'block';
       video.play();
     };
 
-    window.addEventListener('resize', () => {
-      if (safeOpen.style.display === 'block') setKartePosition();
-    });
+    window.addEventListener('resize', setKartePosition);
 
     document.addEventListener('contextmenu', e => e.preventDefault());
   </script>
