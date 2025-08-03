@@ -137,15 +137,16 @@
       } else if (key === "Bestätigen") {
         if (eingabe === korrekterCode) {
           eingabe = "";
-          display.textContent = "";
+          updateDisplay(); // leert das Display
           message.textContent = "✔️ Zugriff gewährt";
           display.style.color = '#00fff7';
           message.style.color = '#00fff7';
 
-          // Safe-Bereich ausblenden
-          document.getElementById('safe').style.display = 'none';
-          // Video einblenden
-          document.getElementById('video-container').style.display = 'block';
+          // Warten, damit der Text sichtbar bleibt, dann Safe weg, Video an
+          setTimeout(() => {
+            wrapper.style.display = 'none';
+            document.getElementById('video-container').style.display = 'block';
+          }, 1000);
 
         } else {
           display.style.color = 'red';
