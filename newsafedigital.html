@@ -8,7 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      height: var(--app-height); /* Anpassung für mobile Browser */
       background: #000;
       display: flex;
       align-items: center;
@@ -61,14 +61,7 @@
       user-select: none;
     }
 
-    #message {
-      color: red;
-      height: 20px;
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-
-    .keypad {
+   .keypad {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 8px;
@@ -143,6 +136,14 @@
   </div>
 
   <script>
+    // --- Anpassung für mobile Höhe ---
+    function setAppHeight() {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    }
+    window.addEventListener('resize', setAppHeight);
+    setAppHeight();
+    // --- Ende Anpassung ---
+
     const keys = [
       "0","1","2","3","4","5","6","7","8","9",
       "A","B","C","D","E","F","G","H","I","J",
@@ -179,17 +180,23 @@
         eingabe = eingabe.slice(0, -1);
       } else if (key === "Bestätigen") {
         if (eingabe === korrekterCode) {
-          message.textContent = "";
           display.textContent = "✔️ Zugriff gewährt";
           display.style.color = "#0f0";
-          door.classList.add('open');
+
+          setTimeout(() => {
+            door.classList.add('open');
+          }, 2000);
+          return;
         } else {
-          message.textContent = "❌ Falscher Code";
+          display.textContent = "❌ Falscher Code";
+          display.style.color = "red";
+
           clearTimeout(errorTimeout);
           errorTimeout = setTimeout(() => {
-            message.textContent = "";
+            eingabe = "";
+            updateDisplay();
+            display.style.color = "#0f0";
           }, 2000);
-          eingabe = "";
         }
       } else {
         if (eingabe.length < 12) {
@@ -213,20 +220,19 @@
       const safeWidth = safe.offsetWidth;
       const safeHeight = safe.offsetHeight;
 
-      const originalWidth = 400; // Originalbild
+      const originalWidth = 400;
       const originalHeight = 500;
 
       const scaleX = safeWidth / originalWidth;
       const scaleY = safeHeight / originalHeight;
 
       karte.style.left = `${75 * scaleX}px`;
-      karte.style.top = `${(123 - 5) * scaleY}px`; // 5 px höher
+      karte.style.top = `${(123 - 15) * scaleY}px`; // 5px höher
       karte.style.width = `${137 * scaleX}px`;
-      karte.style.height = `${(81 + 5) * scaleY}px`;
+      karte.style.height = `${(81 - 3) * scaleY}px`;
     }
 
     door.addEventListener('transitionend', () => {
-      // Tür ist offen → Karte sichtbar
       setKartePosition();
     });
 
@@ -236,7 +242,6 @@
     };
 
     window.addEventListener('resize', setKartePosition);
-
     document.addEventListener('contextmenu', e => e.preventDefault());
   </script>
 
