@@ -144,7 +144,7 @@
       "Löschen","Bestätigen"
     ];
 
-    const korrekterCode = "0123456789AB";
+    const korrekterCode = "6DOE3GE1I1NW";
     let eingabe = "";
     const display = document.getElementById('display');
     const message = document.getElementById('message');
@@ -175,12 +175,12 @@
     display.textContent = "✔️ Zugriff gewährt";
     display.style.color = "#0f0";
 
-  // Tür-Öffnen mit 2 Sekunden Verzögerung:
+
   setTimeout(() => {
     door.classList.add('open');
   }, 2000);
 
-  return; // Weiteres updateDisplay() verhindern
+  return; 
 }
 
  else {
@@ -190,8 +190,8 @@
     clearTimeout(errorTimeout);
     errorTimeout = setTimeout(() => {
       eingabe = "";
-      updateDisplay(); // Zurücksetzen nach Timeout
-      display.style.color = "#0f0"; // Ursprungsfarbe zurücksetzen
+      updateDisplay(); 
+      display.style.color = "#0f0"; 
     }, 2000);
   }
 } else {
@@ -216,20 +216,20 @@
       const safeWidth = safe.offsetWidth;
       const safeHeight = safe.offsetHeight;
 
-      const originalWidth = 400; // Originalbild
+      const originalWidth = 400; 
       const originalHeight = 500;
 
       const scaleX = safeWidth / originalWidth;
       const scaleY = safeHeight / originalHeight;
 
       karte.style.left = `${75 * scaleX}px`;
-      karte.style.top = `${(123 - 15) * scaleY}px`; // 5 px höher
+      karte.style.top = `${(123 - 15) * scaleY}px`; 
       karte.style.width = `${137 * scaleX}px`;
       karte.style.height = `${(81 - 3) * scaleY}px`;
     }
 
     door.addEventListener('transitionend', () => {
-      // Tür ist offen → Karte sichtbar
+     
       setKartePosition();
     });
 
