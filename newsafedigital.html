@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       /* Höhe mit dynamischem Viewport-Wert */
-      height: calc(var(--vh, 1vh) * 100+10px);  /*etwas mehr Spielraum nach unten damit nichts abgeschnitten wird*/
+      height: calc(var(--vh, 1vh) * 100);  /*etwas mehr Spielraum nach unten damit nichts abgeschnitten wird*/
       background: #000;
       display: flex;
       align-items: center;
@@ -244,11 +244,11 @@
 
     document.addEventListener('contextmenu', e => e.preventDefault());
 // --- Dynamische Höhe für mobile Browserleisten ---
-function setFullHeight() {
-  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-}
-setFullHeight();
-window.addEventListener('resize', setFullHeight);
+//function setFullHeight() {
+//  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+//}
+//setFullHeight();
+//window.addEventListener('resize', setFullHeight);
 // -------------------------------------------------
 
     
