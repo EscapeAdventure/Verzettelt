@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Safe mit Karte</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      /* Höhe mit dynamischem Viewport-Wert */
+      height: calc(var(--vh, 1vh) * 100);
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .safe {
+      position: relative;
+      width: 90vw;
+      max-width: 400px;
+      aspect-ratio: 4/6;
+      background: #000; /* Hintergrund schwarz */
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+      perspective: 1000px;
+      overflow: hidden;
+    }
+  position: relative;
+  width: min(90vw, 95vh); /* passt Höhe automatisch an */
+  max-width: 400px;
+  aspect-ratio: 4/5;
+
+
+
+    .door {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #999;
+      border-radius: 10px;
+      transform-origin: left center;
+      transition: transform 1.2s ease-in-out;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .door.open {
+      transform: rotateY(-120deg);
+    }
+
+    .display {
+      width: 100%;
+      height: 50px;
+      background: #000;
+      color: #0f0;
+      font-family: monospace;
+      font-size: 1.2rem;
+      text-align: center;
+      line-height: 50px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      user-select: none;
+    }
+
+   .keypad {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .key {
+      background: #fff;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 0;
+      font-size: 0.9rem;
+      color: #000;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      user-select: none;
+    }
+
+    .key.wide {
+      grid-column: span 2;
+    }
+
+    #safe-bg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: url('SafeOpen.png') no-repeat center center;
+      background-size: cover;
+      z-index: 1;
+    }
+
+    #karte {
+      position: absolute;
+      background: rgba(0, 255, 0, 0); /* unsichtbar */
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    #video-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      z-index: 4;
+      display: none;
+    }
+
+    #video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="safe">
+    <div id="safe-bg">
+      <div id="karte"></div>
+    </div>
+
+    <div class="door" id="door">
+      <div id="message"></div>
+      <div class="display" id="display">- - - - - - - - - - - -</div>
+      <div class="keypad" id="keypad"></div>
+    </div>
+
+    <div id="video-container">
+      <video id="access-video" autoplay muted playsinline>
+        <source src="TÜRÖFFNERFINALE.mp4" type="video/mp4">
+        Dein Browser unterstützt dieses Video nicht.
+      </video>
+    </div>
+  </div>
+
+  <script>
+    const keys = [
+      "0","1","2","3","4","5","6","7","8","9",
+      "A","B","C","D","E","F","G","H","I","J",
+      "K","L","M","N","O","P","Q","R","S","T",
+      "U","V","W","X","Y","Z",
+      "Löschen","Bestätigen"
+    ];
+
+    const korrekterCode = "0123456789AB";
+    let eingabe = "";
+    const display = document.getElementById('display');
+    const message = document.getElementById('message');
+    const door = document.getElementById('door');
+    const karte = document.getElementById('karte');
+    const videoContainer = document.getElementById('video-container');
+    const video = document.getElementById('access-video');
+
+    const keypad = document.getElementById('keypad');
+    keys.forEach(key => {
+      const btn = document.createElement('button');
+      btn.textContent = key;
+      btn.className = 'key';
+      if (key === "Löschen" || key === "Bestätigen") {
+        btn.classList.add('wide');
+      }
+      btn.onclick = () => handleClick(key);
+      keypad.appendChild(btn);
+    });
+
+    let errorTimeout;
+
+    function handleClick(key) {
+      if (key === "Löschen") {
+        eingabe = eingabe.slice(0, -1);
+      } else if (key === "Bestätigen") {
+  if (eingabe === korrekterCode) {
+    display.textContent = "✔️ Zugriff gewährt";
+    display.style.color = "#0f0";
+
+  // Tür-Öffnen mit 2 Sekunden Verzögerung:
+  setTimeout(() => {
+    door.classList.add('open');
+  }, 2000);
+
+  return; // Weiteres updateDisplay() verhindern
+}
+
+ else {
+    display.textContent = "❌ Falscher Code";
+    display.style.color = "red";
+
+    clearTimeout(errorTimeout);
+    errorTimeout = setTimeout(() => {
+      eingabe = "";
+      updateDisplay(); // Zurücksetzen nach Timeout
+      display.style.color = "#0f0"; // Ursprungsfarbe zurücksetzen
+    }, 2000);
+  }
+} else {
+        if (eingabe.length < 12) {
+          eingabe += key;
+        }
+      }
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      let displayText = "";
+      for (let i = 0; i < 12; i++) {
+        displayText += i < eingabe.length ? eingabe[i] : "-";
+        if (i < 11) displayText += " ";
+      }
+      display.textContent = displayText;
+    }
+
+    function setKartePosition() {
+      const safe = document.querySelector('.safe');
+      const safeWidth = safe.offsetWidth;
+      const safeHeight = safe.offsetHeight;
+
+      const originalWidth = 400; // Originalbild
+      const originalHeight = 500;
+
+      const scaleX = safeWidth / originalWidth;
+      const scaleY = safeHeight / originalHeight;
+
+      karte.style.left = `${75 * scaleX}px`;
+      karte.style.top = `${(123 - 15) * scaleY}px`; // 5 px höher
+      karte.style.width = `${137 * scaleX}px`;
+      karte.style.height = `${(81 - 3) * scaleY}px`;
+    }
+
+    door.addEventListener('transitionend', () => {
+      // Tür ist offen → Karte sichtbar
+      setKartePosition();
+    });
+
+    karte.onclick = () => {
+      videoContainer.style.display = 'block';
+      video.play();
+    };
+
+    window.addEventListener('resize', setKartePosition);
+
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    // --- Dynamische Höhe für mobile Browserleisten ---
+function setFullHeight() {
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+}
+setFullHeight();
+window.addEventListener('resize', setFullHeight);
+// -------------------------------------------------
+  </script>
+
+</body>
+</html>
