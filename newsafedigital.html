@@ -19,16 +19,22 @@
 
     .safe {
       position: relative;
-      width: min(90vw, 95vh); /* passt Höhe automatisch an */
+      width: 90vw;
       max-width: 400px;
-      aspect-ratio: 4/5;
+      aspect-ratio: 4/6;
       background: #000; /* Hintergrund schwarz */
       border-radius: 10px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       perspective: 1000px;
       overflow: hidden;
     }
-   
+  position: relative;
+  width: min(90vw, 95vh); /* passt Höhe automatisch an */
+  max-width: 400px;
+  aspect-ratio: 4/5;
+
+
+
     .door {
       position: absolute;
       width: 100%;
@@ -245,15 +251,10 @@
 
     // --- Dynamische Höhe für mobile Browserleisten ---
 function setFullHeight() {
-  requestAnimationFrame(() => {
-    document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-  });
+  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
 }
-
-window.addEventListener('resize', setFullHeight);
-window.addEventListener('orientationchange', setFullHeight);
-window.addEventListener('load', setFullHeight);
 setFullHeight();
+window.addEventListener('resize', setFullHeight);
 // -------------------------------------------------
   </script>
 
