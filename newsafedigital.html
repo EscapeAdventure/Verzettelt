@@ -241,12 +241,12 @@ body {
     window.addEventListener('resize', setKartePosition);
 
     document.addEventListener('contextmenu', e => e.preventDefault());
-// --- Dynamische Höhe für mobile Browserleisten ---
-//function setFullHeight() {
-//  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-//}
-//setFullHeight();
-//window.addEventListener('resize', setFullHeight);
+ --- Dynamische Höhe für mobile Browserleisten ---
+function setFullHeight() {
+ document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
+}
+setFullHeight();
+window.addEventListener('resize', setFullHeight);
 // -------------------------------------------------
 
     
