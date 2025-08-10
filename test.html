@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <title>Safe mit Karte</title>
   <style>
     html, body {
@@ -14,15 +14,15 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      -webkit-text-size-adjust: 100%; /* verhindert Zoom-Anpassung */
     }
 
     .safe {
       position: relative;
-      width: 90vw;
+      width: min(90vw, 90vh * 0.8); /* skaliert an kleinere Bildschirmdimension */
       max-width: 400px;
-      max-height: 90vh; /* NEU: Damit der Safe auf Smartphones nicht abgeschnitten wird */
       aspect-ratio: 4/5;
-      background: #000; /* Hintergrund schwarz */
+      background: #000;
       border-radius: 10px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       perspective: 1000px;
@@ -66,7 +66,7 @@
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 8px;
-      flex-grow: 1; /* NEU: passt Tastenfeld flexibel an Höhe an */
+      flex-grow: 1;
     }
 
     .key {
@@ -74,11 +74,12 @@
       border: none;
       border-radius: 25px;
       padding: 12px 0;
-      font-size: 0.9rem;
+      font-size: 16px; /* verhindert iOS-Zoom */
       color: #000;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       user-select: none;
+      touch-action: manipulation; /* verhindert Doppeltipp-Zoom */
     }
 
     .key.wide {
@@ -96,7 +97,7 @@
 
     #karte {
       position: absolute;
-      background: rgba(0, 255, 0, 0); /* unsichtbar */
+      background: rgba(0, 255, 0, 0);
       cursor: pointer;
       z-index: 2;
     }
@@ -176,16 +177,13 @@
         if (eingabe === korrekterCode) {
           display.textContent = "✔️ Zugriff gewährt";
           display.style.color = "#0f0";
-
           setTimeout(() => {
             door.classList.add('open');
           }, 2000);
-
           return; 
         } else {
           display.textContent = "❌ Falscher Code";
           display.style.color = "red";
-
           clearTimeout(errorTimeout);
           errorTimeout = setTimeout(() => {
             eingabe = "";
