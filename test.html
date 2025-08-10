@@ -8,8 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      /* Höhe mit dynamischem Viewport-Wert */
-      height: calc(var(--vh, 1vh) * 100);
+      height: 100%;
       background: #000;
       display: flex;
       align-items: center;
@@ -21,19 +20,14 @@
       position: relative;
       width: 90vw;
       max-width: 400px;
-      aspect-ratio: 4/6;
+      max-height: 90vh; /* NEU: Damit der Safe auf Smartphones nicht abgeschnitten wird */
+      aspect-ratio: 4/5;
       background: #000; /* Hintergrund schwarz */
       border-radius: 10px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.4);
       perspective: 1000px;
       overflow: hidden;
     }
-  position: relative;
-  width: min(90vw, 95vh); /* passt Höhe automatisch an */
-  max-width: 400px;
-  aspect-ratio: 4/5;
-
-
 
     .door {
       position: absolute;
@@ -68,10 +62,11 @@
       user-select: none;
     }
 
-   .keypad {
+    .keypad {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 8px;
+      flex-grow: 1; /* NEU: passt Tastenfeld flexibel an Höhe an */
     }
 
     .key {
@@ -151,7 +146,7 @@
       "Löschen","Bestätigen"
     ];
 
-    const korrekterCode = "0123456789AB";
+    const korrekterCode = "6DOE3GE1I1NW";
     let eingabe = "";
     const display = document.getElementById('display');
     const message = document.getElementById('message');
@@ -178,30 +173,27 @@
       if (key === "Löschen") {
         eingabe = eingabe.slice(0, -1);
       } else if (key === "Bestätigen") {
-  if (eingabe === korrekterCode) {
-    display.textContent = "✔️ Zugriff gewährt";
-    display.style.color = "#0f0";
+        if (eingabe === korrekterCode) {
+          display.textContent = "✔️ Zugriff gewährt";
+          display.style.color = "#0f0";
 
-  // Tür-Öffnen mit 2 Sekunden Verzögerung:
-  setTimeout(() => {
-    door.classList.add('open');
-  }, 2000);
+          setTimeout(() => {
+            door.classList.add('open');
+          }, 2000);
 
-  return; // Weiteres updateDisplay() verhindern
-}
+          return; 
+        } else {
+          display.textContent = "❌ Falscher Code";
+          display.style.color = "red";
 
- else {
-    display.textContent = "❌ Falscher Code";
-    display.style.color = "red";
-
-    clearTimeout(errorTimeout);
-    errorTimeout = setTimeout(() => {
-      eingabe = "";
-      updateDisplay(); // Zurücksetzen nach Timeout
-      display.style.color = "#0f0"; // Ursprungsfarbe zurücksetzen
-    }, 2000);
-  }
-} else {
+          clearTimeout(errorTimeout);
+          errorTimeout = setTimeout(() => {
+            eingabe = "";
+            updateDisplay(); 
+            display.style.color = "#0f0"; 
+          }, 2000);
+        }
+      } else {
         if (eingabe.length < 12) {
           eingabe += key;
         }
@@ -223,20 +215,19 @@
       const safeWidth = safe.offsetWidth;
       const safeHeight = safe.offsetHeight;
 
-      const originalWidth = 400; // Originalbild
+      const originalWidth = 400; 
       const originalHeight = 500;
 
       const scaleX = safeWidth / originalWidth;
       const scaleY = safeHeight / originalHeight;
 
       karte.style.left = `${75 * scaleX}px`;
-      karte.style.top = `${(123 - 15) * scaleY}px`; // 5 px höher
+      karte.style.top = `${(123 - 15) * scaleY}px`; 
       karte.style.width = `${137 * scaleX}px`;
       karte.style.height = `${(81 - 3) * scaleY}px`;
     }
 
     door.addEventListener('transitionend', () => {
-      // Tür ist offen → Karte sichtbar
       setKartePosition();
     });
 
@@ -248,14 +239,6 @@
     window.addEventListener('resize', setKartePosition);
 
     document.addEventListener('contextmenu', e => e.preventDefault());
-
-    // --- Dynamische Höhe für mobile Browserleisten ---
-function setFullHeight() {
-  document.documentElement.style.setProperty('--vh', window.innerHeight * 0.01 + 'px');
-}
-setFullHeight();
-window.addEventListener('resize', setFullHeight);
-// -------------------------------------------------
   </script>
 
 </body>
